@@ -29,6 +29,16 @@ public class JsonUtil {
         }
     }
 
+
+    public static Optional<JsonNode> Object2Json(Object object){
+        try {
+            String tem = objectMapper.writeValueAsString(object);
+            return Optional.ofNullable(objectMapper.readTree(tem));
+        } catch (IOException e) {
+            return Optional.empty();
+        }
+    }
+
     public static <T> Optional<T> toObject(String str, Class<T> tClass){
         try {
             return Optional.ofNullable(objectMapper.readValue(str, tClass));
@@ -42,6 +52,18 @@ public class JsonUtil {
             if (JsonUtil.toJson(str).isPresent()){
                 JsonNode apply = function.apply(JsonUtil.toJson(str).get());
                 return objectMapper.readValue(apply.toString(), typeReference);
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    public static <T> List<T> toList(JsonNode jsonNode, TypeReference typeReference){
+        try {
+            if (JsonUtil.toJson(jsonNode).isPresent()){
+                return objectMapper.readValue(jsonNode.toString(), typeReference);
             } else {
                 return Collections.emptyList();
             }

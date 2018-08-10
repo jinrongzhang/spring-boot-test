@@ -1,14 +1,15 @@
 package com.example.demo.apple.controller;
 
+import com.example.demo.apple.modle.Apple;
 import com.example.demo.apple.service.AppleService;
+import com.example.demo.apple.utils.ResponseData;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -28,21 +29,18 @@ public class AppleController {
         return appleService.getApple();
     }
 
-    @RequestMapping(value = "/redApple", method = RequestMethod.GET)
+    @RequestMapping(value = "/apples", method = RequestMethod.GET)
     @ResponseBody
-    public CompletableFuture<String> test1() {
-        return appleService.getAppleFunction(x -> "red".equals(x.getColour()));
+    public CompletableFuture<ResponseData> list(){
+        return appleService.list().thenApplyAsync(ResponseData::success);
     }
 
-    @RequestMapping(value = "/greenApple", method = RequestMethod.GET)
-    @ResponseBody
-    public CompletableFuture<String> test2() {
-        return appleService.getAppleFunction(x -> "red".equals(x.getColour()));
-    }
 
-    @RequestMapping(value = "/heavyApple", method = RequestMethod.GET)
+    @RequestMapping(value = "/apples", method = RequestMethod.POST)
     @ResponseBody
-    public CompletableFuture<String> test3() {
-        return appleService.getAppleFunction(x -> x.getWeight() > 3);
+    public CompletableFuture<ResponseData> add(@RequestBody Apple apple){
+        return appleService.add(apple)
+                .thenApplyAsync(x -> x.map(ResponseData::success)
+                        .orElse(ResponseData.error("add apple error")));
     }
 }

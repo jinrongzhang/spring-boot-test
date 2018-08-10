@@ -4,19 +4,29 @@ import com.example.demo.apple.controller.AppleController;
 import com.example.demo.apple.modle.Apple;
 import com.example.demo.apple.utils.ApplePredicate;
 import com.example.demo.apple.utils.JsonUtil;
+import com.example.demo.apple.utils.RestClient;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
 public class AppleServiceImpl implements AppleService {
+
+    private final RestClient restClient;
+
+    @Autowired
+    public AppleServiceImpl(RestClient restClient) {
+        this.restClient = restClient;
+    }
 
     private static Logger logger = LoggerFactory.getLogger(AppleController.class);
 
@@ -73,5 +83,24 @@ public class AppleServiceImpl implements AppleService {
                 .filter(predicate::test)
                 .collect(Collectors.toList());
         return CompletableFuture.completedFuture(JsonUtil.toJson(collect).toString());
+    }
+
+    @Override
+    public CompletableFuture<List<Apple>> list() {
+        return restClient.getListByFunction("http://127.0.0.1:9000/v1/stores/apples", new TypeReference<List<Apple>>() {
+        }, x -> x.get("apples"));
+    }
+
+    @Override
+    public CompletableFuture<Optional<Apple>> getById(String id) {
+        String url = "http://127.0.0.1:9000/v1/stores/apples" + "/" + id;
+        return restClient.getByFunction(url, Apple.class, x -> x.get("apples"));
+    }
+
+    @Override
+    public CompletableFuture<Optional<Apple>> add(Apple apple) {
+        return JsonUtil.Object2Json(apple).map(x -> {
+            return restClient.postBody("http://127.0.0.1:9000/v1/stores/apples", x, Apple.class);
+        }).orElseGet(() -> CompletableFuture.supplyAsync(Optional::empty));
     }
 }

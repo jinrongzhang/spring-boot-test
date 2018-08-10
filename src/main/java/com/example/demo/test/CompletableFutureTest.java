@@ -13,14 +13,20 @@ public class CompletableFutureTest {
     public static void main(String[] args) {
 
         CompletableFuture<String> stringCompletableFuture = CompletableFuture.supplyAsync(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             logger.info("111");
             return "str1";
         });
 
 
+
         logger.info("11111");
 
-        CompletableFuture<String> stringCompletableFuture1 = stringCompletableFuture.thenApply(x -> {
+        CompletableFuture<String> stringCompletableFuture1 = stringCompletableFuture.thenApplyAsync(x -> {
             logger.info(String.valueOf(stringCompletableFuture.isDone()));
             logger.info("222");
             return "str2";

@@ -17,7 +17,7 @@ public class StreamTest {
         long begin = System.currentTimeMillis();
 
         List<Double> collect = Stream.generate(Math::random)
-                .limit(10000000)
+                .limit(10)
                 .collect(Collectors.toList());
 
         long step1 = System.currentTimeMillis();

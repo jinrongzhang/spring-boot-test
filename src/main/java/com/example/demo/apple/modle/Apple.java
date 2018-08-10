@@ -9,6 +9,8 @@ public class Apple {
     private double weight;
     @JsonProperty("name")
     private String name;
+    @JsonProperty
+    private String id;
 
     public Apple setColour(String colour) {
         this.colour = colour;
@@ -36,5 +38,9 @@ public class Apple {
 
     public String getName() {
         return name;
+    }
+
+    public String getId() {
+        return id;
     }
 }
